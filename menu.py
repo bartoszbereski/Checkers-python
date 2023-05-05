@@ -4,8 +4,11 @@ import easygui
 from button import Button
 from checkers.constants import SQUARE_SIZE, WIDTH, HEIGHT
 from checkers.game import Game
+from checkers.board import Board
 from minimax.algorithm import minimax
-from checkers.constants import WHITE
+from checkers.constants import WHITE, RED
+from network import Network
+import threading
 
 SCREEN = pygame.display.set_mode((800, 800))
 pygame.display.set_caption("Menu")
@@ -14,6 +17,9 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
 BG = pygame.image.load("assets/background1.png")
 ai_on = False
+
+
+
 def get_row_col_from_mouse(pos):
     x, y = pos
     row = y // SQUARE_SIZE
@@ -101,25 +107,30 @@ def options():
                     main_menu()
         pygame.display.update()
 
+n = Network()
+
+def threaded_network_send(p):
+    n.send(p)
+    #print("Sending:", p)
 
 def play():
     run = True
     clock = pygame.time.Clock()
+    player_num = n.get_player_number()
     game = Game(WIN)
+    board = Board()
 
     while run:
+        p = n.get_p()
         clock.tick(FPS)
-
         if game.turn == WHITE and ai_on:
             value, new_board = minimax(game.get_board(), 4, WHITE, game)
             game.ai_move(new_board)
-
-        #winner = game.winner()
-        #if winner is not None:
-         #   message = f"{winner} wins!"
+       # winner = game.winner()
+       # if winner is not None:
+            #message = f"{winner} wins!"
           #  easygui.msgbox(message, 'WINNER!')
-           # run = False
-
+            #run = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -127,5 +138,11 @@ def play():
                 pos = pygame.mouse.get_pos()
                 row, col = get_row_col_from_mouse(pos)
                 game.select(row, col)
+                p1 = Board().get_board()  # update p with the new board position
+                print("before", p1)
+                #print("after", p)
+                threading.Thread(target=threaded_network_send, args=(p1,)).start()
+                if game.made_move():
+                    print("after",p)
         game.update()
     pygame.quit()
