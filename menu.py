@@ -135,14 +135,13 @@ def play():
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
+                p1 = board.get_board()  # update p with the new board position
+                print("before", p1)
                 pos = pygame.mouse.get_pos()
                 row, col = get_row_col_from_mouse(pos)
                 game.select(row, col)
-                p1 = Board().get_board()  # update p with the new board position
-                print("before", p1)
-                #print("after", p)
                 threading.Thread(target=threaded_network_send, args=(p1,)).start()
                 if game.made_move():
-                    print("after",p)
+                    pass
         game.update()
     pygame.quit()
