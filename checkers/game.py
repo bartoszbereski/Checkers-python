@@ -7,6 +7,7 @@ class Game:
     def __init__(self, win):
         self._init()
         self.win = win
+        self.move_made = False
 
     def update(self):
         self.board.draw(self.win)
@@ -25,6 +26,7 @@ class Game:
     def select(self, row, col):
         if self.selected:
             result = self._move(row, col)
+            self.move_made = True
             if not result:
                 self.selected = None
                 self.select(row, col)
@@ -37,15 +39,19 @@ class Game:
 
         return False
 
+    def made_move(self):
+        return self.move_made
+
     def _move(self, row, col):
         piece = self.board.get_piece(row, col)
         if self.selected and piece == 0 and (row, col) in self.valid_moves:
             self.board.move(self.selected, row, col)
+            #print("Dupa", self.board.move(self.selected, row, col))
             skipped = self.valid_moves[(row, col)]
+            board_state = self.board.move(self.selected, row, col)
             if skipped:
                 self.board.remove(skipped)
             self.change_turn()
-
         else:
             return False
 

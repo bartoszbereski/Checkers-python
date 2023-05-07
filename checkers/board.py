@@ -37,6 +37,12 @@ class Board:
                 self.white_kings += 1
             else:
                 self.red_kings += 1
+        #print(self.board)
+        #return self.board
+
+    def get_board(self):
+        return self.board
+
 
     def remove(self, pieces):
         for piece in pieces:
